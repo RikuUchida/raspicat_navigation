@@ -1,0 +1,41 @@
+<launch>
+　<include file="$(find raspicat)/launch/raspicat.launch"/>
+  <node pkg="tf" type="static_transform_publisher" name="raspicat_lrf_tf_broadcaster" args="0.144 0.0 0.04 0 0 0 /base_link /urg_lrf_link 100" />
+  <node pkg="urg_node" name="urg_node" type="urg_node" required="true">
+    <param name="frame_id" value="urg_lrf_link" />
+    <param name="serial_port" value="/dev/ttyACM0" />
+    <param name="angle_min" value="-1.98094870101"/>
+    <param name="angle_max" value="1.98094870101"/>
+  </node>
+  <!-- Arguments -->
+  <arg name="map_file" default="$(find raspicat_navigation)/config/maps/2_19.yaml"/>
+  <arg name="open_rviz" default="true"/>
+  <arg name="move_forward_only" default="false"/>
+  <arg name="csv_file" default="$(find raspicat_navigation)/config/csv/waypoint.csv"/>
+
+<!-- Map server -->
+<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+<!-- Robot_model import -->
+ <arg name="multi_robot_name" default=""/>
+
+  <include file="$(find raspicat_navigation)/launch/include/description.launch.xml"/>
+ 
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" value="$(arg multi_robot_name)"/>
+  </node>
+  <!-- AMCL -->
+  <include file="$(find raspicat_navigation)/launch/amcl.launch"/>
+<!-- move_base -->
+  <include file="$(find raspicat_navigation)/launch/move_base.launch">
+    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
+  </include>
+
+  <node pkg="raspicat_navigation" name="WaypointNav_node" type="WaypointNav_node" args="$(arg csv_file)" output="screen"/>
+
+<!-- motor ON -->
+  <node pkg="raspicat_navigation" name="motor_start"
+    type="motor_start.py" required="true" output="screen">
+  </node>
+</launch>

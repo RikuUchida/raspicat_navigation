@@ -1,5 +1,5 @@
-image: /home/raspi-cat/catkin_ws/src/raspicat_navigation/config/maps/map_tudanuma.pgm
-resolution: 0.050000
+image: map_tudanuma.pgm
+resolution: 0.05000
 origin: [-100.000000, -100.000000, 0.000000]
 negate: 0
 occupied_thresh: 0.65
